@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<Licensing>
+        <SerialNumber>3</SerialNumber>
+        <TimeBomb>2015/01/24</TimeBomb>
+        <Companies>
+                <ComercialName>Restaurant and Bar - Test 01</ComercialName>
+                <SocialName>Test 01, Lda</SocialName>
+                <FiscalNumber>123456789</FiscalNumber>
+                <Store>Test Store</Store>
+                <StoreText>Test 01</StoreText>
+                <Address>01 Test Street</Address>
+                <ZipCode>0000-000</ZipCode>
+                <City>Test</City>
+                <Country>Portugal</Country>
+                <Phone>000000000</Phone>
+                <CapitalContribution>100000 Euros</CapitalContribution>
+                <RegNumber>123456789</RegNumber>
+                <SellCompany>true</SellCompany>
+                <Licences>
+                        <Software SoftwareID="1" SoftwareName="Koncepto">
+                                <ExtraValue></ExtraValue>
+                                <Modules ModuleID="1" ModuleName="Standard">
+                                        <NumberAccessClients>5</NumberAccessClients>
+                                        <ExtraValue></ExtraValue>
+                                </Modules>
+                                <Modules ModuleID="2" ModuleName="PDA">
+                                        <NumberAccessClients>2</NumberAccessClients>
+                                        <ExtraValue></ExtraValue>
+                                </Modules>
+                                <Modules ModuleID="4" ModuleName="Canteens">
+                                        <NumberAccessClients>3</NumberAccessClients>
+                                        <ExtraValue>true</ExtraValue>
+                                </Modules>
+                        </Software>
+                </Licences>
+        </Companies>
+</Licensing>
+
