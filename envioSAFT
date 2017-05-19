@@ -1,0 +1,128 @@
+#!/bin/bash
+
+# apt-get install libio-socket-ssl-perl libnet-ssleay-perl perl sendemail
+
+centro_de_custo="`hostname`"
+db=koncepto
+
+email="mail\@mail.com \
+mail2\@nail.com" 
+output=draft.txt
+
+koncepto=/opt/koncepto
+
+SAFTYear="`date +%Y -d \"1 month ago\"`"
+SAFTMonth="`date +%m -d \"1 month ago\"`"
+SAFTFile=""
+SAFTvalid="tem erros"
+SAFTschemaPATH=/root
+
+
+generateSAFT ()
+{
+cd $koncepto/bin
+	export LD_LIBRARY_PATH=$koncepto/lib
+	pwd
+	echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH"
+
+	SAFTFile="saft-$SAFTYear-$SAFTMonth-`hostname`--`date +%F_%H-%M`.xml" 
+	# echo "./saft  $SAFTYear $SAFTMonth  saft-$SAFTYear-$SAFTMonth-`hostname`--`date +%F_%H-%M`.xml  $db" 
+	./saft  $SAFTYear $SAFTMonth  $SAFTFile  $db 
+	xmllint --noout --schema $SAFTschemaPATH/SAFTPT1.03_01.xsd   $koncepto/$SAFTFile   > /dev/null  2>&1
+	
+	if [ "$?" == "0" ] ; then
+		echo  "|     File is valid with v1.03    | " ; 
+		echo  "+---------------------------------+"
+	else 
+		echo  "|        File has errors!         | " ; 
+		echo  "+---------------------------------+"
+		echo  "+---------------------------------+"
+		SAFTvalid="tem erros"
+	
+	fi
+}
+
+
+compose_mail ()
+{
+
+echo "<html>
+	<head>
+		<title></title>
+	</head>
+	<body>
+		<table border=\"0\" cellpadding=\"1\" cellspacing=\"1\" style=\"width: 600px; \">
+			<tbody>
+				<tr>
+					<td>
+						<h2>
+							<img alt=\"Sindesi - Sistemas e Soluçoes Informáticas\" src=\"http://i1353.photobucket.com/albums/q666/comercialsindesi/mail/top_zps5abd09af.jpg\" style=\"width: 600px; height: 172px; float: left; margin: 1px; border-width: 0px; border-style: solid; \" /></h2>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<h1>
+							Centro de Custo: <strong>$centro_de_custo</strong></h1>
+						<h2>
+							Segue em anexo o ficheiro:<br />
+							&nbsp;<span style=\"color:#ff0000;\"><strong><span style=\"font-family: 'courier new', courier, monospace; \">$SAFTFile</span></strong></span><br>
+							referente ao <u>m&ecirc;s <strong>$SAFTMonth</strong> do ano </u><strong><u>$SAFTYear</u></strong>.<br>
+							
+						</h2>
+						<h3>
+							Ficheiro gerado de acordo com <b>versao $SAFTVersion.</b><br>
+							De acordo com as normas disponibilizadas pela AT, <b>o ficheiro <u>$SAFTvalid</u></b> .
+						</h3>
+						<p>
+							Este e-mail foi enviado automaticamente. Se n&atilde;o pretende receber mais este tipo de e-mail, por favor notifique.</p>
+						<p>
+							&nbsp;</p>
+						<div>
+							<hr />
+						</div>
+						<div>
+							<span style=\"font-size: 11px; \">AVISO DE CONFIDENCIALIDADE:</span></div>
+						<div>
+							<span style=\"font-size: 11px; \">Este correio electr&oacute;nico e todos os documentos que o acompanham podem conter informa&ccedil;&atilde;o reservada ou confidencial. Se n&atilde;o &eacute; o destinat&aacute;rio, n&atilde;o est&aacute; autorizado a tomar conhecimento, copiar ou distribuir esta comunica&ccedil;&atilde;o a terceiros. Se por engano recebeu o correio, por favor notifique o remetente e elimine-o do seu sistema.Embora este correio e os seus anexos sejam considerados como limpos de v&iacute;rus ou de outras defici&ecirc;ncias que possam danificar os sistemas onde sejam recebidos e abertos, &eacute; da responsabilidade dos destinat&aacute;rios verificarem a sua inocuidade, n&atilde;o assumindo a SINDESI, LDA qualquer responsabilidade por perdas ou danos resultantes da sua utiliza&ccedil;&atilde;o.&nbsp;</span></div>
+						<div>
+							&nbsp;</div>
+						<div>
+							<span style=\"font-size: 11px; \">WARNING:</span></div>
+						<div>
+							<span style=\"font-size: 11px; \">This message and the attached documents may contain confidential information protected by a professional privilege. In the event you are not the addressee you are forbidden to read, copy or use it in any way. If this message has been received in error, please immediately notify the sender and delete the message from your system.Although this message and the attached files have been scanned for viruses and no viruses or any other malware that could damage the system were detected, it is the addressee&#39;s responsibility to check its innocuity. No responsibility whatsoever is accepted by the SINDESI, LDA for any loss or damage arising in any way from receipt or use thereof.</span></div>
+						<p>
+							---&nbsp;FIM DE DOCUMENTO ---</p>
+					</td>
+				</tr>
+			</tbody>
+		</table></body>
+</html>
+
+" > $output 
+
+}
+
+send_mail () 
+{	
+	for (( i=1; i<=10; c++ )) 
+	do
+		cat $output  | iconv -f UTF-8 -t ISO_8859-1 | /root/sendEmail \
+			-f sindesi\@sindesi.com \
+			-xu username -xp password \
+			-o tls=yes  -o reply-to=nuno.leitao\@sindesi.com \
+		       	-t $email -u "SAFT-PT referente a $centro_de_custo " \
+			-s smtp.gmail.com -a $koncepto/$SAFTFile  
+		if [ "$?"="0" ]; then 
+			echo "Email enviado com sucesso";
+			exit 0
+
+		fi
+	done
+}
+
+
+generateSAFT
+compose_mail
+send_mail
+
+
